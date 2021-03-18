@@ -3,6 +3,7 @@
 # Converts .csv files to the Motec ld format
 
 from parse import *
+from metadata import *
 from os import write
 from sys import argv 
 import csv
@@ -34,6 +35,7 @@ def write_metadata(outfile):
     date = (f"{today.day}/{today.month}/{today.year}")
     zeros = 32 - len(date)
     outfile.write(date.encode() + b"\x00" * zeros)
+
 
 def write_hex(outfile):
     pass
