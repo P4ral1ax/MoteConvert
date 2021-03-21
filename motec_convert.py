@@ -97,7 +97,6 @@ def test_read_csv_header():
 
 def main():
     start = time.perf_counter()
-    
     outfile = open("out/test.ld", "wb")
     csv = "data/07-2020-Liberator-Session1.csv"
     
