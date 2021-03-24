@@ -55,8 +55,49 @@ def write_metadata(outfile, data):
     outfile.write(b"\x22\x02\xD2\x00\x00\x00\x54\x65\x73\x74")
     outfile.write(b"\x00" * 60)
 
-    # Write Comment
+    # Fill Short Comment + Extranous Character
+    outfile.write(b"\x00" * 48)
+    outfile.write(b"\x63")
+    outfile.write(b"\x00" * 117)
 
+    # Event | TODO - User Input
+    outfile.write(b"\x00" * 64)
+    
+    # Session Num | TODO - Detect Session #
+    outfile.write(b"\x00" * 64)
+
+    # Comment
+    comment = metadata.values[5][1]
+    zeros = 1024 - len(comment)
+    outfile.write(comment.encode() + b"\x00" * zeros)
+    
+    # Unknown Bits
+    outfile.write(b"\x36\x13\x00\x00\x48\x2C")
+
+    # HELLA Zeros
+    outfile.write(b"\x00" * 1998)
+
+    # Venue + HELLA Zeros + random char
+    zeros = 1999 - len(track)
+    outfile.write(track.encode() + b"\x00" * zeros + b"\x54\x1F")
+
+    # MOAR ZEROS
+    outfile.write(b"\x00" * 2003)
+
+    # Vehicle ID
+    outfile.write(b"\x00" * 64)
+    
+    # Vehicle
+    zeros = 131 - len(car)
+    outfile.write(car.encode() + b"\x00" * zeros)
+    
+    # Vehicle Type | TODO - UI
+    type = "Kart"
+    zeros = 64 - len(type)
+    outfile.write(type.encode() + b"\x00" * zeros)
+    
+    # SO MANY 00s
+    outfile.write(b"\x00" * 5104)
 
 
 def write_telemetry_headers(outfile, data):
