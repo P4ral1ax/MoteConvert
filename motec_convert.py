@@ -13,13 +13,13 @@ import datetime
 
 def write_header(outfile, unique1, unique2):
     outfile.write(b"\x40\x00\x00\x00\x00\x00\x00\x00\x48\x34\x00\x00")
-    outfile.write(b"\x40\xD0")
+    outfile.write(b"\x58\xCD")
     outfile.write(b"\x00" * 22)
     outfile.write(b"\xE2\x06")
     outfile.write(b"\x00" * 28)
     outfile.write(b"\x40\x42\x0F\x00\xE7\x2E\x00\x00\x41\x44\x4C\x00\x00\x00"\
     b"\x00\x00\xA4\x01\x80")
-    outfile.write(b"\x00\x42\x01\x42\x01\x3C\x00\x01\x00")
+    outfile.write(b"\x00\x3C\x01\x3C\x01\x3C\x00\x01\x00")
 
 
 def write_metadata(outfile, data):
@@ -28,6 +28,11 @@ def write_metadata(outfile, data):
 
     # Write Date
     date = metadata.values[6][1]
+    date_year_end = date[6:8]
+    date_month = date[0:2]
+    date_day = date[3:5]
+    date_year = "20" + date_year_end
+    date = date_day + "/" + date_month + "/" + date_year
     zeros = 32 - len(date)
     outfile.write(date.encode() + b"\x00" * zeros)
 
@@ -52,11 +57,13 @@ def write_metadata(outfile, data):
     outfile.write(track.encode() + b"\x00" * zeros)
 
     # Write Unknown
-    outfile.write(b"\x22\x02\xD2\x00\x00\x00\x54\x65\x73\x74")
+    outfile.write(b"\x22\x08\xD2\x00\x00\x00\x54\x65\x73\x74")
     outfile.write(b"\x00" * 60)
 
     # Fill Short Comment + Extranous Character
-    outfile.write(b"\x00" * 48)
+    comment = metadata.values[5][1]
+    zeros = 72 - len(comment)
+    outfile.write(comment.encode() + b"\x00" * zeros)
     outfile.write(b"\x63")
     outfile.write(b"\x00" * 117)
 
@@ -68,8 +75,7 @@ def write_metadata(outfile, data):
 
     # Comment
     comment = metadata.values[5][1]
-    zeros = 1024 - len(comment)
-    outfile.write(comment.encode() + b"\x00" * zeros)
+    outfile.write(b"\x00" * 1024)
     
     # Unknown Bits
     outfile.write(b"\x36\x13\x00\x00\x48\x2C")
@@ -78,17 +84,18 @@ def write_metadata(outfile, data):
     outfile.write(b"\x00" * 1998)
 
     # Venue + HELLA Zeros + random char
-    zeros = 1999 - len(track)
+    zeros = 1098 - len(track)
     outfile.write(track.encode() + b"\x00" * zeros + b"\x54\x1F")
 
     # MOAR ZEROS
-    outfile.write(b"\x00" * 2003)
+    outfile.write(b"\x00" * 2002)
 
     # Vehicle ID
-    outfile.write(b"\x00" * 64)
+    zeros = 64 - len(car)
+    outfile.write(car.encode() + b"\x00" * zeros)
     
     # Vehicle
-    zeros = 131 - len(car)
+    zeros = 132 - len(car)
     outfile.write(car.encode() + b"\x00" * zeros)
     
     # Vehicle Type | TODO - UI
@@ -97,7 +104,10 @@ def write_metadata(outfile, data):
     outfile.write(type.encode() + b"\x00" * zeros)
     
     # SO MANY 00s
-    outfile.write(b"\x00" * 5104)
+    outfile.write(b"\x00" * 5108)
+
+    # Constant Characters
+    outfile.write(b"\xC4\x34\x00\x00\x58\xCD")
 
 
 def write_telemetry_headers(outfile, data):
@@ -138,7 +148,7 @@ def test_read_csv_header():
 
 def main():
     start = time.perf_counter()
-    outfile = open("out/test.ld", "wb")
+    outfile = open("out/test5.ld", "wb")
     csv = "data/07-2020-Liberator-Session1.csv"
     
     write_header(outfile, "garbage", "garbage")
